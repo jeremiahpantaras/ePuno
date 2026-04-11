@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { Home, Receipt, PieChart, Target, User } from 'lucide-react'
 import InstallPrompt from '../common/InstallPrompt'

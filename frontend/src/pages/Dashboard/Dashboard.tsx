@@ -29,7 +29,7 @@ interface Budget {
 export default function Dashboard() {
   const { user } = useAuthContext()
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [budget, setBudget] = useState<Budget | null>(null)
+  const [, setBudget] = useState<Budget | null>(null)
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
 

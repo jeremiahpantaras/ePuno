@@ -9,10 +9,6 @@ interface Toast {
   message: string
 }
 
-interface ToastContextType {
-  showToast: (type: ToastType, message: string) => void
-}
-
 let toastId = 0
 let addToast: ((type: ToastType, message: string) => void) | null = null
 

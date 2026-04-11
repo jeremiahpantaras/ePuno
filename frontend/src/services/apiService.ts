@@ -1,6 +1,4 @@
 import { auth } from './firebase'
-import { getIdToken } from 'firebase/auth'
-import type { User } from 'firebase/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
 
