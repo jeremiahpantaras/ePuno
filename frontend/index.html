@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/ePunoFavivon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="shortcut icon" href="/ePunoFavivon.svg" />
+    <link rel="apple-touch-icon" href="/ePunoFavivon.svg" />
+
+    <!-- Primary SEO -->
+    <title>ePuno – Track Your Financial Growth</title>
+    <meta name="description" content="ePuno is a personal finance tracker that helps you monitor income, expenses, savings goals, and daily spending limits — all in one app." />
+    <meta name="keywords" content="ePuno, personal finance, budget tracker, expense tracker, savings goals, Philippine Peso, PHP, financial app" />
+    <meta name="author" content="Jeremiah Pantaras" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://epuno.cosedevs.com" />
+
+    <!-- Open Graph (Facebook, Messenger, Viber, etc.) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ePuno" />
+    <meta property="og:title" content="ePuno – Track Your Financial Growth" />
+    <meta property="og:description" content="Monitor income, expenses, savings goals, and daily spending limits all in one place. Powered by Firebase." />
+    <meta property="og:url" content="https://epuno.cosedevs.com" />
+    <meta property="og:image" content="https://epuno.cosedevs.com/epuno-thumbnail.png" />
+    <meta property="og:image:alt" content="ePuno – Personal Finance Tracker" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_PH" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ePuno – Track Your Financial Growth" />
+    <meta name="twitter:description" content="Monitor income, expenses, savings goals, and daily spending limits all in one place." />
+    <meta name="twitter:image" content="https://epuno.cosedevs.com/epuno-thumbnail.png" />
+    <meta name="twitter:image:alt" content="ePuno – Personal Finance Tracker" />
+
+    <!-- Vercel deployment alternate canonical -->
+    <meta name="theme-color" content="#10b981" />
+
+    <!-- Prevent flash of wrong theme -->
+    <script>
+      (function () {
+        var t = localStorage.getItem('epuno-theme') || 'dark';
+        var dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) document.documentElement.classList.add('dark');
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

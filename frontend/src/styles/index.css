@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* Enable class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Theme CSS custom properties ── */
+:root {
+  --app-bg: #f0fdf4;
+  --app-text: #0f172a;
+  --app-muted: #475569;
+  --app-surface: rgba(255, 255, 255, 0.75);
+  --app-border: rgba(0, 0, 0, 0.08);
+  --app-input: rgba(0, 0, 0, 0.04);
+  --app-row-hover: rgba(0, 0, 0, 0.04);
+}
+
+html.dark {
+  --app-bg: #09090b;
+  --app-text: #ffffff;
+  --app-muted: #a1a1aa;
+  --app-surface: rgba(255, 255, 255, 0.05);
+  --app-border: rgba(255, 255, 255, 0.10);
+  --app-input: rgba(255, 255, 255, 0.05);
+  --app-row-hover: rgba(255, 255, 255, 0.05);
+}
+
+body {
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* ── Light-mode overrides for Tailwind opacity utilities ── */
+html:not(.dark) .text-white {
+  color: var(--app-text);
+}
+html:not(.dark) .text-zinc-400 {
+  color: #475569;
+}
+html:not(.dark) .bg-white\/5,
+html:not(.dark) .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+html:not(.dark) .border-white\/5,
+html:not(.dark) .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+html:not(.dark) .hover\:bg-white\/5:hover,
+html:not(.dark) .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out;
+}

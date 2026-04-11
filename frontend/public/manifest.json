@@ -1,0 +1,24 @@
+{
+  "name": "ePuno – Track Your Financial Growth",
+  "short_name": "ePuno",
+  "description": "Personal finance tracker for income, expenses, savings goals, and daily spending limits.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/ePunoFavivon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/epuno-thumbnail.png",
+      "sizes": "1200x630",
+      "type": "image/png"
+    }
+  ]
+}
