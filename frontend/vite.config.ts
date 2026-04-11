@@ -13,14 +13,24 @@ export default defineConfig({
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
           const url = req.url ?? '/'
-          if (!url.includes('.') && url !== '/') req.url = '/'
+          if (
+            !url.startsWith('/@') &&
+            !url.startsWith('/node_modules') &&
+            !url.includes('.') &&
+            url !== '/'
+          ) req.url = '/'
           next()
         })
       },
       configurePreviewServer(server) {
         server.middlewares.use((req, _res, next) => {
           const url = req.url ?? '/'
-          if (!url.includes('.') && url !== '/') req.url = '/'
+          if (
+            !url.startsWith('/@') &&
+            !url.startsWith('/node_modules') &&
+            !url.includes('.') &&
+            url !== '/'
+          ) req.url = '/'
           next()
         })
       },

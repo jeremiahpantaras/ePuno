@@ -80,7 +80,7 @@ export async function fetchGoals() {
   return response.json()
 }
 
-export async function addGoal(goal: { title: string; targetAmount: number; type?: string }) {
+export async function addGoal(goal: { title: string; targetAmount: number; type?: string; startDate?: string }) {
   const headers = await getAuthHeaders()
   const response = await fetch(`${API_URL}/goals`, {
     method: 'POST',
@@ -88,5 +88,54 @@ export async function addGoal(goal: { title: string; targetAmount: number; type?
     body: JSON.stringify(goal)
   })
   if (!response.ok) throw new Error('Failed to add goal')
+  return response.json()
+}
+
+export async function updateGoal(
+  id: string,
+  data: { title: string; targetAmount: number; type: string; currentAmount?: number; startDate?: string }
+) {
+  const headers = await getAuthHeaders()
+  const response = await fetch(`${API_URL}/goals/${id}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(data)
+  })
+  if (!response.ok) throw new Error('Failed to update goal')
+  return response.json()
+}
+
+export async function deleteGoal(id: string) {
+  const headers = await getAuthHeaders()
+  const response = await fetch(`${API_URL}/goals/${id}`, {
+    method: 'DELETE',
+    headers
+  })
+  if (!response.ok) throw new Error('Failed to delete goal')
+  return response.json()
+}
+
+export async function updateTransaction(
+  id: string,
+  transactionType: 'income' | 'expense',
+  data: { amount: number; category?: string; source?: string; description: string }
+) {
+  const headers = await getAuthHeaders()
+  const response = await fetch(`${API_URL}/transaction/${id}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify({ transactionType, ...data })
+  })
+  if (!response.ok) throw new Error('Failed to update transaction')
+  return response.json()
+}
+
+export async function deleteTransaction(id: string, transactionType: 'income' | 'expense') {
+  const headers = await getAuthHeaders()
+  const response = await fetch(`${API_URL}/transaction/${id}?transactionType=${transactionType}`, {
+    method: 'DELETE',
+    headers
+  })
+  if (!response.ok) throw new Error('Failed to delete transaction')
   return response.json()
 }

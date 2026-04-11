@@ -1,12 +1,23 @@
 import { useState } from 'react'
 import { X, ArrowUpCircle, ArrowDownCircle, AlertTriangle } from 'lucide-react'
-import { addExpense, addIncome, fetchGoals, fetchTransactions } from '../../services/apiService'
+import { addExpense, addIncome, fetchGoals, fetchTransactions, updateTransaction } from '../../services/apiService'
 import { useToast } from './Toast'
 import { formatCurrency } from '../../utils/formatCurrency'
+
+interface Transaction {
+  id: string
+  amount: number
+  category?: string
+  source?: string
+  description: string
+  createdAt: string
+  transactionType: 'income' | 'expense'
+}
 
 interface AddTransactionSheetProps {
   onClose: () => void
   onSuccess: () => void
+  transaction?: Transaction
 }
 
 interface ExceededGoal {
@@ -18,11 +29,12 @@ interface ExceededGoal {
 const categories = ['Food', 'Transport', 'Utilities', 'Entertainment', 'Shopping', 'Healthcare', 'Other']
 const incomeSources = ['Salary', 'Freelance', 'Business', 'Investment', 'Gift', 'Other']
 
-export default function AddTransactionSheet({ onClose, onSuccess }: AddTransactionSheetProps) {
-  const [type, setType] = useState<'income' | 'expense'>('expense')
-  const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState('')
-  const [description, setDescription] = useState('')
+export default function AddTransactionSheet({ onClose, onSuccess, transaction }: AddTransactionSheetProps) {
+  const isEdit = !!transaction
+  const [type, setType] = useState<'income' | 'expense'>(transaction?.transactionType ?? 'expense')
+  const [amount, setAmount] = useState(transaction ? String(transaction.amount) : '')
+  const [category, setCategory] = useState(transaction?.category ?? transaction?.source ?? '')
+  const [description, setDescription] = useState(transaction?.description ?? '')
   const [loading, setLoading] = useState(false)
   const [exceededGoal, setExceededGoal] = useState<ExceededGoal | null>(null)
   const { showToast } = useToast()
@@ -31,7 +43,14 @@ export default function AddTransactionSheet({ onClose, onSuccess }: AddTransacti
     setLoading(true)
     setExceededGoal(null)
     try {
-      if (type === 'expense') {
+      if (isEdit) {
+        await updateTransaction(transaction.id, type, {
+          amount: parseFloat(amount),
+          ...(type === 'expense' ? { category } : { source: category }),
+          description
+        })
+        showToast('success', 'Transaction updated!')
+      } else if (type === 'expense') {
         await addExpense({ amount: parseFloat(amount), category, description })
         showToast('success', 'Expense added successfully!')
       } else {
@@ -41,8 +60,8 @@ export default function AddTransactionSheet({ onClose, onSuccess }: AddTransacti
       onSuccess()
       onClose()
     } catch (error) {
-      console.error('Failed to add transaction:', error)
-      showToast('error', 'Failed to add transaction')
+      console.error('Failed to save transaction:', error)
+      showToast('error', isEdit ? 'Failed to update transaction' : 'Failed to add transaction')
     } finally {
       setLoading(false)
     }
@@ -101,29 +120,29 @@ export default function AddTransactionSheet({ onClose, onSuccess }: AddTransacti
           <X size={24} />
         </button>
 
-        <h2 className="text-xl font-semibold text-white mb-6">Add Transaction</h2>
+        <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-6">{isEdit ? 'Edit Transaction' : 'Add Transaction'}</h2>
 
         <div className="flex gap-3 mb-6">
           <button
             type="button"
-            onClick={() => { setType('expense'); setCategory('') }}
+            onClick={() => { if (!isEdit) { setType('expense'); setCategory('') } }}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-medium transition-all duration-300 ${
               type === 'expense'
                 ? 'bg-red-500/20 text-red-400 border border-red-500/30'
                 : 'bg-white/5 text-zinc-400 border border-white/5'
-            }`}
+            } ${isEdit ? 'cursor-default opacity-60' : ''}`}
           >
             <ArrowDownCircle size={20} />
             Expense
           </button>
           <button
             type="button"
-            onClick={() => { setType('income'); setCategory('') }}
+            onClick={() => { if (!isEdit) { setType('income'); setCategory('') } }}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-medium transition-all duration-300 ${
               type === 'income'
                 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                 : 'bg-white/5 text-zinc-400 border border-white/5'
-            }`}
+            } ${isEdit ? 'cursor-default opacity-60' : ''}`}
           >
             <ArrowUpCircle size={20} />
             Income
@@ -199,7 +218,7 @@ export default function AddTransactionSheet({ onClose, onSuccess }: AddTransacti
             "
             disabled={loading}
           >
-            {loading ? 'Saving...' : 'Save Transaction'}
+            {loading ? 'Saving...' : isEdit ? 'Save Changes' : 'Save Transaction'}
           </button>
         </form>
       </div>

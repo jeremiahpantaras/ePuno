@@ -1,16 +1,17 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Search, ChevronLeft, ChevronRight, ArrowDown, ArrowUp } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight, ArrowDown, ArrowUp, Pencil, Trash2, AlertTriangle } from 'lucide-react'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDate } from '../../utils/formatDate'
 import GlassCard from '../../components/common/GlassCard'
 import FloatingAddButton from '../../components/common/FloatingAddButton'
 import AddTransactionSheet from '../../components/common/AddTransactionSheet'
-import { fetchTransactions } from '../../services/apiService'
+import { fetchTransactions, deleteTransaction } from '../../services/apiService'
+import { useToast } from '../../components/common/Toast'
 
 interface Transaction {
   id: string
   amount: number
-  category: string
+  category?: string
   source?: string
   description: string
   createdAt: string
@@ -49,10 +50,14 @@ export default function Transactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [search, setSearch] = useState('')
   const [period, setPeriod] = useState<FilterPeriod>('all')
   const [sort, setSort] = useState<SortOrder>('newest')
   const [page, setPage] = useState(1)
+  const { showToast } = useToast()
 
   const loadTransactions = async () => {
     try {
@@ -62,6 +67,21 @@ export default function Transactions() {
       console.error('Failed to load transactions:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
+    try {
+      await deleteTransaction(deleteTarget.id, deleteTarget.transactionType)
+      showToast('success', 'Transaction deleted')
+      setDeleteTarget(null)
+      loadTransactions()
+    } catch {
+      showToast('error', 'Failed to delete transaction')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -145,15 +165,31 @@ export default function Transactions() {
                 key={t.id}
                 className="p-4 flex justify-between items-center hover:scale-[1.01] transition-all duration-300"
               >
-                <div className="min-w-0 flex-1 pr-4">
-                  <p className="font-medium text-white text-sm truncate">{t.description}</p>
+                <div className="min-w-0 flex-1 pr-3">
+                  <p className="font-medium text-zinc-900 dark:text-white text-sm truncate">{t.description}</p>
                   <p className="text-xs text-zinc-500 mt-0.5">
                     {t.transactionType === 'expense' ? t.category : t.source} • {formatDate(t.createdAt)}
                   </p>
                 </div>
-                <span className={`font-bold text-sm shrink-0 ${t.transactionType === 'income' ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {t.transactionType === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
-                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={`font-bold text-sm ${t.transactionType === 'income' ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {t.transactionType === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                  </span>
+                  <button
+                    onClick={() => { setEditingTransaction(t); setShowModal(true) }}
+                    className="p-1.5 rounded-xl text-zinc-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                    aria-label="Edit"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => setDeleteTarget(t)}
+                    className="p-1.5 rounded-xl text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                    aria-label="Delete"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </GlassCard>
             ))}
           </div>
@@ -185,10 +221,46 @@ export default function Transactions() {
         </>
       )}
 
-      <FloatingAddButton onClick={() => setShowModal(true)} />
+      <FloatingAddButton onClick={() => { setEditingTransaction(null); setShowModal(true) }} />
 
       {showModal && (
-        <AddTransactionSheet onClose={() => setShowModal(false)} onSuccess={loadTransactions} />
+        <AddTransactionSheet
+          onClose={() => { setShowModal(false); setEditingTransaction(null) }}
+          onSuccess={loadTransactions}
+          transaction={editingTransaction ?? undefined}
+        />
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-black/8 dark:border-white/10 rounded-3xl p-6 shadow-2xl">
+            <div className="flex items-center justify-center w-12 h-12 bg-red-500/20 rounded-full mb-4 mx-auto">
+              <AlertTriangle size={24} className="text-red-400" />
+            </div>
+            <h3 className="text-zinc-900 dark:text-white font-semibold text-center text-lg mb-1">Delete Transaction?</h3>
+            <p className="text-zinc-500 text-sm text-center mb-1">{deleteTarget.description}</p>
+            <p className={`text-center font-bold text-sm mb-6 ${deleteTarget.transactionType === 'income' ? 'text-emerald-400' : 'text-red-400'}`}>
+              {deleteTarget.transactionType === 'income' ? '+' : '-'}{formatCurrency(deleteTarget.amount)}
+            </p>
+            <p className="text-zinc-500 text-xs text-center mb-6">This action cannot be undone.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="flex-1 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-zinc-300 hover:text-white text-sm font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex-1 py-2.5 rounded-2xl bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

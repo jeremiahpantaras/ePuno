@@ -154,7 +154,7 @@ export async function addGoal(req: AuthRequest, res: Response) {
     const uid = req.user?.uid
     if (!uid) return res.status(401).json({ error: 'Unauthorized' })
 
-    const { title, targetAmount, type } = req.body
+    const { title, targetAmount, type, startDate } = req.body
 
     const goalRef = adminDb.collection('users').doc(uid).collection('goals').doc()
     await goalRef.set({
@@ -162,11 +162,106 @@ export async function addGoal(req: AuthRequest, res: Response) {
       targetAmount,
       currentAmount: 0,
       type: type || 'savings',
+      ...(startDate ? { startDate } : {}),
       createdAt: new Date().toISOString()
     })
 
     res.json({ id: goalRef.id, message: 'Goal added' })
   } catch (error) {
     res.status(500).json({ error: 'Failed to add goal' })
+  }
+}
+
+export async function updateGoal(req: AuthRequest, res: Response) {
+  try {
+    const uid = req.user?.uid
+    if (!uid) return res.status(401).json({ error: 'Unauthorized' })
+
+    const id = req.params.id
+    if (!id || typeof id !== 'string') return res.status(400).json({ error: 'Invalid goal id' })
+
+    const docRef = adminDb.collection('users').doc(uid).collection('goals').doc(id)
+    const doc = await docRef.get()
+    if (!doc.exists) return res.status(404).json({ error: 'Goal not found' })
+
+    const { title, targetAmount, currentAmount, type, startDate } = req.body
+    const updateData: Record<string, unknown> = { title, targetAmount, type }
+    if (currentAmount !== undefined) updateData.currentAmount = currentAmount
+    if (startDate !== undefined) updateData.startDate = startDate
+
+    await docRef.update(updateData)
+    res.json({ message: 'Goal updated' })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update goal' })
+  }
+}
+
+export async function deleteGoal(req: AuthRequest, res: Response) {
+  try {
+    const uid = req.user?.uid
+    if (!uid) return res.status(401).json({ error: 'Unauthorized' })
+
+    const id = req.params.id
+    if (!id || typeof id !== 'string') return res.status(400).json({ error: 'Invalid goal id' })
+
+    const docRef = adminDb.collection('users').doc(uid).collection('goals').doc(id)
+    const doc = await docRef.get()
+    if (!doc.exists) return res.status(404).json({ error: 'Goal not found' })
+
+    await docRef.delete()
+    res.json({ message: 'Goal deleted' })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete goal' })
+  }
+}
+
+export async function updateTransaction(req: AuthRequest, res: Response) {
+  try {
+    const uid = req.user?.uid
+    if (!uid) return res.status(401).json({ error: 'Unauthorized' })
+
+    const id = req.params.id
+    if (!id || typeof id !== 'string') return res.status(400).json({ error: 'Invalid transaction id' })
+    const { transactionType, amount, category, source, description } = req.body
+
+    const collection = transactionType === 'income' ? 'income' : 'expenses'
+    const docRef = adminDb.collection('users').doc(uid).collection(collection).doc(id)
+    const doc = await docRef.get()
+
+    if (!doc.exists) return res.status(404).json({ error: 'Transaction not found' })
+
+    const updateData: Record<string, unknown> = { amount, description }
+    if (transactionType === 'income') {
+      updateData.source = source
+    } else {
+      updateData.category = category
+    }
+
+    await docRef.update(updateData)
+    res.json({ message: 'Transaction updated' })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update transaction' })
+  }
+}
+
+export async function deleteTransaction(req: AuthRequest, res: Response) {
+  try {
+    const uid = req.user?.uid
+    if (!uid) return res.status(401).json({ error: 'Unauthorized' })
+
+    const id = req.params.id
+    if (!id || typeof id !== 'string') return res.status(400).json({ error: 'Invalid transaction id' })
+    const { transactionType } = req.query
+
+    const collection = transactionType === 'income' ? 'income' : 'expenses'
+    const docRef = adminDb.collection('users').doc(uid).collection(collection).doc(id)
+    const doc = await docRef.get()
+
+    if (!doc.exists) return res.status(404).json({ error: 'Transaction not found' })
+
+    await docRef.delete()
+    res.json({ message: 'Transaction deleted' })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete transaction' })
   }
 }

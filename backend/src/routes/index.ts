@@ -7,7 +7,11 @@ import {
   setMonthlyLimit,
   resetBudget,
   getGoals,
-  addGoal
+  addGoal,
+  updateGoal,
+  deleteGoal,
+  updateTransaction,
+  deleteTransaction
 } from '../controllers/budgetController'
 import { authMiddleware } from '../middleware/authMiddleware'
 
@@ -21,5 +25,9 @@ router.post('/monthly-limit', authMiddleware, setMonthlyLimit)
 router.post('/reset-budget', authMiddleware, resetBudget)
 router.get('/goals', authMiddleware, getGoals)
 router.post('/goals', authMiddleware, addGoal)
+router.put('/goals/:id', authMiddleware, updateGoal)
+router.delete('/goals/:id', authMiddleware, deleteGoal)
+router.put('/transaction/:id', authMiddleware, updateTransaction)
+router.delete('/transaction/:id', authMiddleware, deleteTransaction)
 
 export default router
