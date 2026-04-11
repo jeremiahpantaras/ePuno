@@ -81,9 +81,11 @@ export async function getTransactions(req: AuthRequest, res: Response) {
     const expenses = expensesSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), transactionType: 'expense' }))
     const income = incomeSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), transactionType: 'income' }))
 
-    const transactions = [...expenses, ...income].sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
+    const transactions = [...expenses, ...income].sort((a, b) => {
+      const aDate = (a as { createdAt?: string }).createdAt ?? ''
+      const bDate = (b as { createdAt?: string }).createdAt ?? ''
+      return new Date(bDate).getTime() - new Date(aDate).getTime()
+    })
 
     res.json(transactions)
   } catch (error) {

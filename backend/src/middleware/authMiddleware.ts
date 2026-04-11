@@ -26,6 +26,7 @@ export async function authMiddleware(
     }
 
     const token = authHeader.split('Bearer ')[1]
+    if (!token) return res.status(401).json({ error: 'No token provided' })
     const decodedToken = await adminAuth.verifyIdToken(token)
 
     req.user = {
@@ -35,7 +36,8 @@ export async function authMiddleware(
 
     next()
   } catch (error) {
-    console.error('Auth middleware error:', error.message)
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('Auth middleware error:', message)
     return res.status(401).json({ error: 'Invalid token' })
   }
 }

@@ -198,18 +198,3 @@ export default function InstallPrompt() {
     </div>
   )
 }
-              </p>
-              <button
-                onClick={handleInstall}
-                className="mt-2 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 dark:text-emerald-400 text-xs font-medium hover:bg-emerald-500/25 transition-colors"
-              >
-                <Download size={13} />
-                Install App
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
