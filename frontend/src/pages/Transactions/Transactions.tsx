@@ -225,35 +225,42 @@ export default function Transactions() {
 
             <div className="h-4 w-px bg-white/10 mx-1"></div>
 
-            <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-xl border transition-all ${
+            <div className={`flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-1.5 px-3 sm:px-2 py-2 sm:py-0.5 rounded-xl border transition-all w-full sm:w-auto ${
               period === 'custom_range'
                 ? 'bg-emerald-500/10 border-emerald-500/30'
                 : 'bg-white/5 border-white/10'
             }`}>
-              <span className={`text-xs font-medium ${period === 'custom_range' ? 'text-emerald-400/70' : 'text-zinc-500'}`}>From</span>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => {
-                  setFromDate(e.target.value)
-                  if (e.target.value || toDate) setPeriod('custom_range')
-                  else if (!e.target.value && !toDate) setPeriod('all')
-                }}
-                className={`bg-transparent text-xs font-medium py-1 focus:outline-none ${period === 'custom_range' ? 'text-emerald-400' : 'text-zinc-400 hover:text-white'}`}
-                style={{ colorScheme: 'dark' }}
-              />
-              <span className={`text-xs font-medium ml-1 ${period === 'custom_range' ? 'text-emerald-400/70' : 'text-zinc-500'}`}>To</span>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => {
-                  setToDate(e.target.value)
-                  if (fromDate || e.target.value) setPeriod('custom_range')
-                  else if (!fromDate && !e.target.value) setPeriod('all')
-                }}
-                className={`bg-transparent text-xs font-medium py-1 focus:outline-none ${period === 'custom_range' ? 'text-emerald-400' : 'text-zinc-400 hover:text-white'}`}
-                style={{ colorScheme: 'dark' }}
-              />
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <span className={`text-xs font-medium w-8 sm:w-auto ${period === 'custom_range' ? 'text-emerald-400/70' : 'text-zinc-500'}`}>From</span>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => {
+                    setFromDate(e.target.value)
+                    if (e.target.value || toDate) setPeriod('custom_range')
+                    else if (!e.target.value && !toDate) setPeriod('all')
+                  }}
+                  className={`bg-transparent text-xs font-medium py-1 flex-1 sm:w-auto focus:outline-none ${period === 'custom_range' ? 'text-emerald-400' : 'text-zinc-400 hover:text-white'}`}
+                  style={{ colorScheme: 'dark' }}
+                />
+              </div>
+              
+              <div className="hidden sm:block h-3 w-px bg-white/10 mx-1"></div>
+              
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <span className={`text-xs font-medium w-8 sm:w-auto ${period === 'custom_range' ? 'text-emerald-400/70' : 'text-zinc-500'}`}>To</span>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => {
+                    setToDate(e.target.value)
+                    if (fromDate || e.target.value) setPeriod('custom_range')
+                    else if (!fromDate && !e.target.value) setPeriod('all')
+                  }}
+                  className={`bg-transparent text-xs font-medium py-1 flex-1 sm:w-auto focus:outline-none ${period === 'custom_range' ? 'text-emerald-400' : 'text-zinc-400 hover:text-white'}`}
+                  style={{ colorScheme: 'dark' }}
+                />
+              </div>
             </div>
           </div>
 
