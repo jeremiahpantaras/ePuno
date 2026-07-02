@@ -76,6 +76,29 @@ export default function Dashboard() {
 
   const balance = totalIncome - totalExpense
 
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth())
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+
+  const MONTHS = [
+    'January', 'February', 'March', 'April', 'May', 'June', 
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ]
+
+  const monthlyTransactions = transactions.filter(t => {
+    const d = new Date(t.createdAt)
+    return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear
+  })
+
+  const monthlyIncome = monthlyTransactions
+    .filter(t => t.transactionType === 'income')
+    .reduce((sum, t) => sum + t.amount, 0)
+    
+  const monthlyExpense = monthlyTransactions
+    .filter(t => t.transactionType === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0)
+    
+  const monthlyBalance = monthlyIncome - monthlyExpense
+
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -83,11 +106,47 @@ export default function Dashboard() {
           <GlassCard className="p-8 text-center">
             <img src={ePunoLogo} alt="ePuno" className="w-24 h-24 mx-auto object-contain mb-2" />
             <p className="text-zinc-400 text-sm">Good morning!</p>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Your Balance</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Overall Balance</h1>
             <p className={`text-5xl md:text-6xl font-bold text-transparent bg-clip-text drop-shadow-[0_0_20px_rgba(52,211,153,0.5)] ${
               balance >= 0 ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' : 'bg-gradient-to-r from-red-400 to-orange-500'
             }`}>
               {formatCurrency(balance)}
+            </p>
+          </GlassCard>
+        </div>
+
+        <div className="md:col-span-12">
+          <GlassCard className="p-6 text-center">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+              <h2 className="text-xl md:text-2xl font-bold text-white">{MONTHS[selectedMonth]} {selectedYear} Balance</h2>
+              
+              <div className="flex gap-2">
+                <select 
+                  value={selectedMonth}
+                  onChange={e => setSelectedMonth(Number(e.target.value))}
+                  className="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-sm text-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer hover:bg-white/10 transition-colors"
+                >
+                  {MONTHS.map((m, i) => (
+                    <option key={m} value={i} className="bg-zinc-800 text-white">{m}</option>
+                  ))}
+                </select>
+
+                <select 
+                  value={selectedYear}
+                  onChange={e => setSelectedYear(Number(e.target.value))}
+                  className="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-sm text-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer hover:bg-white/10 transition-colors"
+                >
+                  {[...Array(7)].map((_, i) => {
+                    const year = new Date().getFullYear() - 3 + i;
+                    return <option key={year} value={year} className="bg-zinc-800 text-white">{year}</option>
+                  })}
+                </select>
+              </div>
+            </div>
+            <p className={`text-4xl md:text-5xl font-bold text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(52,211,153,0.4)] ${
+              monthlyBalance >= 0 ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' : 'bg-gradient-to-r from-red-400 to-orange-500'
+            }`}>
+              {formatCurrency(monthlyBalance)}
             </p>
           </GlassCard>
         </div>
